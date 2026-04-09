@@ -10,6 +10,11 @@ Commit Story is a web-based developer productivity tool designed to transform un
   - To generate a compatible log file, run:
     `git log --pretty=format:"%H|%s|%an|%ae|%ad|%D" --date=iso > my-log.txt`
 - **AI-Driven Analysis**: Intelligently group commits into features, bug fixes, refactors, and more.
+- **Commit Context Understanding**: Raw messages like "Added login" are converted into professional, achievement-oriented summaries using Gemini AI.
+- **Team Velocity Timeline**: Visual bar charts showing commit frequency and work mix over time (powered by Chart.js).
+- **Shareable Story Cards**: Generate beautiful, embeddable HTML cards summarizing your repository's journey.
+- **CLI Tool**: Run analysis directly from your terminal with `python cli.py .`.
+- **Noisy Commit Filter**: Auto-detect and collapse "noise" commits (fix, wip, asdf) with a single toggle.
 - **Narrative Generation**:
   - 📝 **Release Notes**: Professional summaries for users.
   - 🤝 **Standup Reports**: Team-focused weekly updates.
@@ -26,23 +31,7 @@ The application follows a simplified, developer-friendly architecture:
 - **Lightweight Backend**: Powered by Flask and SQLite for zero-config setup.
 - **Modern UI**: Dark-themed, mobile-responsive glassmorphism design.
 
-## 🚀 Deployment
-
-Since this is a Flask application, it requires a Python server (not GitHub Pages). We recommend **Render** or **Railway** for free/easy hosting.
-
-### Deploy on Render:
-1. Push your code to a GitHub repository.
-2. Go to [Render.com](https://render.com/) and create a "New Web Service".
-3. Connect your repository.
-4. Settings:
-   - **Environment**: `Python`
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `gunicorn "app:create_app()"`
-5. Add **Environment Variables**:
-   - `GEMINI_API_KEY`: Your Gemini API key.
-   - `SECRET_KEY`: A long random string.
-
-## 📂 Project Structure
+##  Project Structure
 
 - `app.py`: Application entry point and factory.
 - `config.py`: Central configuration file.
