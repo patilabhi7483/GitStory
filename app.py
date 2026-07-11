@@ -4,7 +4,10 @@ Registers all page blueprints, initializes DB, and sets up Jinja2 template path.
 """
 
 import os
-from flask import Flask
+from flask import Flask, jsonify
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import database
 import config
 
@@ -20,7 +23,7 @@ def create_app():
     # ── Config ──────────────────────────────────────────────────────────────
     app.secret_key = config.SECRET_KEY
     app.config["MAX_CONTENT_LENGTH"] = config.MAX_FILE_SIZE_BYTES
-
+    CSRFProtect(app)
     # ── Jinja globals ────────────────────────────────────────────────────────
     app.jinja_env.globals.update(
         APP_NAME=config.APP_NAME,
@@ -78,5 +81,5 @@ h1{font-size:4rem;color:#dc2626}p{color:#94a3b8;max-width:600px}a{color:#a78bfa;
 
 if __name__ == "__main__":
     app = create_app()
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, host="0.0.0.0", port=port)
+    # DEBUG reads from FLASK_DEBUG env var via config.py — never hardcoded
+    app.run(debug=config.DEBUG, host="0.0.0.0", port=5000)

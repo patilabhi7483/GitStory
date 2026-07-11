@@ -6,16 +6,26 @@ All pages and services import from here. No other file needs to be modified.
 """
 
 import os
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
-# ─── Database ───────────────────────────────────────────────────────────────
+
+# ─── Database ────────────────────────────────────────────────────────────
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE_PATH = os.path.join(BASE_DIR, "data", "commitstory.db")
 
-# ─── Gemini AI API ──────────────────────────────────────────────────────────
-# Get your FREE key at: https://aistudio.google.com/
-# Free tier: 15 RPM, 1,500 RPD, 1M tokens/day
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
-GEMINI_MODEL = "gemini-1.5-flash"
+# ─── Redis (Celery broker + rate limit storage) ──────────────────────────
+REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+
+# ─── Groq AI API ──────────────────────────────────────────────────────────
+# Get your FREE key at: https://console.groq.com/
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "YOUR_GROQ_API_KEY_HERE")
+GROQ_MODEL = "llama-3.3-70b-versatile"  # Free model on Groq
 
 # GitHub API (used for repository URL analysis on github.com)
 GITHUB_API_TOKEN = os.environ.get("GITHUB_API_TOKEN", "")
@@ -52,10 +62,10 @@ NARRATIVE_FORMATS = [
 ]
 DEFAULT_NARRATIVE_FORMAT = "release"
 
-# ─── Feature Flags ───────────────────────────────────────────────────────────
+# ─── Feature Flags ────────────────────────────────────────────────────────────
 ENABLE_HISTORY = True       # Show /history page
 ENABLE_SHARE = True         # Enable /share/<slug> public links
 
-# ─── Flask ───────────────────────────────────────────────────────────────────
-SECRET_KEY = os.environ.get("SECRET_KEY", "commit-story-dev-secret-change-in-prod")
+# ─── Flask ───────────────────────────────────────────────────────────────
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-change-in-prod-immediately")
 DEBUG = os.environ.get("FLASK_DEBUG", "false").lower() == "true"

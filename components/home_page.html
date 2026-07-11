@@ -43,6 +43,7 @@
         </div>
 
         <form method="post" action="/analyze" enctype="multipart/form-data" onsubmit="showLoadingState()">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
           <input type="hidden" name="input_mode" id="input_mode" value="url" />
 
           <div class="mode-tabs mb-6">

@@ -158,7 +158,7 @@ def get_type_info(type_key: str) -> dict:
 
 
 def serialize_groups_for_prompt(groups: list[dict]) -> str:
-    """Compact text serialization of groups for Gemini prompt (minimal tokens)."""
+    """Compact text serialization of groups for Grok prompt (minimal tokens)."""
     lines = []
     for g in groups:
         lines.append(f"\n## {g['label']} ({g['commit_count']} commits)")

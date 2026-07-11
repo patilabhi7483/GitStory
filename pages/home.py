@@ -15,7 +15,7 @@ from services.git_parser import (
     extract_repo_name
 )
 from services.commit_classifier import group_commits, serialize_groups_for_prompt
-from services.gemini_client import gemini
+from services.grok_client import grok
 
 home_bp = Blueprint("home", __name__, template_folder="../components")
 
@@ -64,9 +64,9 @@ def analyze():
         commit_count=len(commits),
     )
 
-    # Generate narratives via Gemini
+    # Generate narratives via Grok
     try:
-        narratives = gemini.generate_all(commit_data_text, repo_name)
+        narratives = grok.generate_all(commit_data_text, repo_name)
         database.update_narratives(analysis_id, narratives)
     except Exception as e:
         database.set_error(analysis_id, str(e))

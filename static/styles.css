@@ -713,6 +713,11 @@ code, pre {
 
 .timeline-group__body {
   padding: var(--space-3) 0;
+  display: none;
+}
+
+.timeline-group__body.active {
+  display: block;
 }
 
 .commit-item {

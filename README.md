@@ -10,7 +10,7 @@ Commit Story is a web-based developer productivity tool designed to transform un
   - To generate a compatible log file, run:
     `git log --pretty=format:"%H|%s|%an|%ae|%ad|%D" --date=iso > my-log.txt`
 - **AI-Driven Analysis**: Intelligently group commits into features, bug fixes, refactors, and more.
-- **Commit Context Understanding**: Raw messages like "Added login" are converted into professional, achievement-oriented summaries using Gemini AI.
+- **Commit Context Understanding**: Raw messages like "Added login" are converted into professional, achievement-oriented summaries using Grok AI.
 - **Team Velocity Timeline**: Visual bar charts showing commit frequency and work mix over time (powered by Chart.js).
 - **Shareable Story Cards**: Generate beautiful, embeddable HTML cards summarizing your repository's journey.
 - **CLI Tool**: Run analysis directly from your terminal with `python cli.py .`.

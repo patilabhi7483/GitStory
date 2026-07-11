@@ -48,6 +48,9 @@ def result(analysis_id: int):
     ]}
     insights = build_contribution_insights(raw_commits, groups)
 
+    # Prepare chart data (last 10 weeks)
+    chart_data = _prepare_chart_data(groups)
+
     return render_template(
         "analyze_page.html",
         analysis=enriched,
@@ -55,6 +58,7 @@ def result(analysis_id: int):
         active_format=active_format,
         type_info=type_info_map,
         insights=insights,
+        chart_data=chart_data,
     )
 
 
@@ -88,6 +92,25 @@ def export(analysis_id: int, fmt: str, ext: str):
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
+
+def _prepare_chart_data(groups: list[dict]):
+    """Prepare data for Chart.js velocity timeline."""
+    # Take last 10 groups (weeks) and reverse to chronological
+    timeline_groups = [g for g in groups if g.get("week_key") != "undated"][:10]
+    timeline_groups.reverse()
+    
+    labels = [g["label"].replace("Week of ", "") for g in timeline_groups]
+    features = [g["type_counts"].get("feature", 0) for g in timeline_groups]
+    fixes = [g["type_counts"].get("bugfix", 0) + g["type_counts"].get("hotfix", 0) for g in timeline_groups]
+    others = [g["commit_count"] - features[i] - fixes[i] for i, g in enumerate(timeline_groups)]
+    
+    return {
+        "labels": labels,
+        "features": features,
+        "fixes": fixes,
+        "others": others
+    }
+
 
 def _safe_json(text: str):
     try:

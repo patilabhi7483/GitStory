@@ -2,6 +2,71 @@
 {% from "macros.j2" import commit_badge, milestone_pill, stat_card %}
 
 {% block title %}{{ analysis.repo_name }}{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function toggleGroup(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('active');
+  const arrow = header.querySelector('.toggle-arrow');
+  arrow.textContent = body.classList.contains('active') ? '▲' : '▼';
+}
+
+function toggleNoise() {
+  const hide = document.getElementById('toggle-noise').checked;
+  const noisyItems = document.querySelectorAll('.commit-item[data-noisy="true"]');
+  noisyItems.forEach(item => {
+    item.style.display = hide ? 'none' : 'flex';
+  });
+}
+
+// Initial state
+document.addEventListener('DOMContentLoaded', () => {
+  toggleNoise();
+  
+  // Velocity Chart
+  const ctx = document.getElementById('velocityChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: {{ chart_data.labels|tojson }},
+      datasets: [
+        {
+          label: 'Features',
+          data: {{ chart_data.features|tojson }},
+          backgroundColor: '#7c3aed',
+          borderRadius: 4
+        },
+        {
+          label: 'Fixes',
+          data: {{ chart_data.fixes|tojson }},
+          backgroundColor: '#dc2626',
+          borderRadius: 4
+        },
+        {
+          label: 'Others',
+          data: {{ chart_data.others|tojson }},
+          backgroundColor: '#64748b',
+          borderRadius: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { color: '#94a3b8' } }
+      },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { color: '#94a3b8' } },
+        y: { stacked: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}
 {% block meta_description %}Generated commit story for {{ analysis.repo_name }} with grouped activity, contributor insights, and narrative summaries.{% endblock %}
 
 {% block content %}
@@ -29,6 +94,18 @@
 
     <section class="result-grid mt-8">
       <div class="result-sidebar">
+        <article class="card mb-6">
+          <div class="flex items-center justify-between mb-4" style="flex-wrap:wrap;gap:12px">
+            <div>
+              <p class="section-label">Team Velocity</p>
+              <h2 style="font-size:1.2rem">Activity timeline</h2>
+            </div>
+          </div>
+          <div style="height: 200px">
+            <canvas id="velocityChart"></canvas>
+          </div>
+        </article>
+
         <article class="card mb-6">
           <div class="flex items-center justify-between mb-4" style="flex-wrap:wrap;gap:12px">
             <div>
@@ -117,7 +194,13 @@
               <p class="section-label">Timeline</p>
               <h2 style="font-size:1.2rem">Grouped commit history</h2>
             </div>
-            <span class="text-sm text-muted">{{ groups|length }} groups</span>
+            <div class="flex items-center gap-4">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="toggle-noise" onchange="toggleNoise()" checked>
+                <label for="toggle-noise" class="text-sm text-muted">Hide noise</label>
+              </div>
+              <span class="text-sm text-muted">{{ groups|length }} groups</span>
+            </div>
           </div>
 
           {% if groups %}
@@ -134,9 +217,9 @@
                     {% endif %}
                   </div>
                 </div>
-                <span class="toggle-arrow">▼</span>
+                <span class="toggle-arrow">{{ '▲' if loop.first else '▼' }}</span>
               </div>
-              <div class="timeline-group__body">
+              <div class="timeline-group__body {{ 'active' if loop.first }}">
                 {% if group.milestones %}
                 <div class="flex gap-2 wrap" style="padding: 0 var(--space-5) var(--space-3);">
                   {% for milestone in group.milestones %}
@@ -152,7 +235,7 @@
                 </div>
 
                 {% for commit in group.commits %}
-                <div class="commit-item">
+                <div class="commit-item" data-noisy="{{ 'true' if commit.is_noisy else 'false' }}">
                   <div class="commit-item__hash">{{ commit.hash }}</div>
                   <div class="commit-item__message">
                     <div class="flex gap-2 wrap mb-4">

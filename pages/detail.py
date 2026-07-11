@@ -47,6 +47,23 @@ def share(slug: str):
     )
 
 
+@detail_bp.get("/card/<slug>")
+def story_card(slug: str):
+    analysis = database.get_analysis_by_slug(slug)
+    if not analysis:
+        abort(404)
+
+    raw_commits = _safe_json(analysis.get("raw_commits_json", "[]"))
+    groups = _safe_json(analysis.get("grouped_commits_json", "[]"))
+    insights = build_contribution_insights(raw_commits, groups)
+
+    return render_template(
+        "story_card.html",
+        analysis=analysis,
+        insights=insights,
+    )
+
+
 def _safe_json(text: str):
     try:
         return json.loads(text) if text else []

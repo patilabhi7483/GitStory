@@ -37,6 +37,11 @@ FULL_LOG_PATTERN = re.compile(
 )
 ONELINE_PATTERN = re.compile(r"^([a-f0-9]{6,40})\s+(.+)$")
 
+NOISY_MESSAGE_PATTERN = re.compile(
+    r"^(fix|wip|asdf|merge|update|chore|cleanup|lint|refactor|minor|small|test|checkpoint|typo|formatting|initial|docs?|hotfix)\b.*",
+    re.IGNORECASE,
+)
+
 
 def parse_from_url(url: str) -> list[dict]:
     """Fetch structured commits from a supported repository URL."""
@@ -126,6 +131,7 @@ def _fetch_github_commits(owner: str, repo: str) -> list[dict]:
                     "date": _parse_date(date_raw),
                     "date_raw": date_raw,
                     "tags": tag_map.get(sha, []),
+                    "is_noisy": bool(NOISY_MESSAGE_PATTERN.match(message or "")),
                 }
             )
 
@@ -284,6 +290,7 @@ def _parse_multiline_log(content: str) -> list[dict]:
             "date": _parse_date(date_raw),
             "date_raw": date_raw.strip(),
             "tags": [],
+            "is_noisy": bool(NOISY_MESSAGE_PATTERN.match(message or "")),
         })
             
     return commits
@@ -304,6 +311,7 @@ def _parse_full_line(line: str) -> dict | None:
         "date": _parse_date(date_str),
         "date_raw": date_str.strip(),
         "tags": tags,
+        "is_noisy": bool(NOISY_MESSAGE_PATTERN.match(message.strip())),
     }
 
 
@@ -321,6 +329,7 @@ def _parse_oneline(line: str) -> dict | None:
         "date": None,
         "date_raw": "",
         "tags": [],
+        "is_noisy": bool(NOISY_MESSAGE_PATTERN.match(message.strip())),
     }
 
 
